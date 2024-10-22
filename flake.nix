@@ -31,28 +31,34 @@
         kde-greeter = with final; stdenv.mkDerivation {
           pname = "kde-greeter";
           name = "kde-greeter";
+          version = "0.1";
 
           src = pkgs.fetchurl {
             url = "https://invent.kde.org/golubevan/lightdm-kde-greeter/-/archive/ups-port-kde6/lightdm-kde-greeter-ups-port-kde6.tar.gz";
             hash = "sha256-AHmyCYRxwK6K3eYjJxuHIL+uOK4EiWTIf30K9Lo3f5s=";
           };
-          nativeBuildInputs = [ cmake kdePackages.extra-cmake-modules kdePackages.qtbase qt6.full kdePackages.wrapQtAppsHook pkg-config lightdm gtk2 kdePackages.networkmanager-qt kdePackages.kiconthemes kdePackages.kcmutils kdePackages.kpackage kdePackages.plasma-workspace];
+          nativeBuildInputs = [ cmake kdePackages.extra-cmake-modules kdePackages.qtbase qt6.full kdePackages.wrapQtAppsHook pkg-config lightdm gtk2 kdePackages.networkmanager-qt kdePackages.kiconthemes kdePackages.kcmutils kdePackages.kpackage kdePackages.plasma-workspace kdePackages.qtshadertools];
           dontWrapQtApps = true;
+          dontUseCmakeConfigure=true;
           cmakeFlags = [
             "-DGREETER_IMAGES_DIR=images"
             "-DBUILD_TESTING=ON"
             "-DCMAKE_BUILD_TYPE=Debug"
-            "-DCMAKE_INSTALL_PREFIX='./builds/plasma/lightdm-kde-greeter/_install'"
+            "-DCMAKE_INSTALL_PREFIX=$out"
             "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON"
             "-DECM_ENABLE_SANITIZERS='address'"
             "-DGREETER_DEFAULT_WALLPAPER=default.jpg"
             "-DBUILD_WITH_QT6=ON"
             "-DQT_MAJOR_VERSION=6"
-            "-DLIGHTDM_CONFIG_DIR=./_install"
-            "-DDATA_INSTALL_DIR=./install_data"
+            "-DLIGHTDM_CONFIG_DIR=$out"
+            "-DDATA_INSTALL_DIR=$out"
           ];
-
-
+          buildPhase = ''
+            cmake -DGREETER_IMAGES_DIR=images -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=$out -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DECM_ENABLE_SANITIZERS='address' -DGREETER_DEFAULT_WALLPAPER=default.jpg -DBUILD_WITH_QT6=ON -DQT_MAJOR_VERSION=6 -DLIGHTDM_CONFIG_DIR=$out -DDATA_INSTALL_DIR=$out .
+          '';
+          postInstall = ''
+            ls -lah $out
+          '';
         };
       };
 
