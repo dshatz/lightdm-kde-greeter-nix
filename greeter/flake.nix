@@ -2,10 +2,10 @@
   description = "A very basic flake";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
   };
 
-  outputs = { self, nixpkgs}:
+  outputs = { self, nixpkgs }:
 
     let
         inherit (nixpkgs.lib) genAttrs optional;
@@ -30,30 +30,50 @@
             ]
             (system: f nixpkgs.legacyPackages.${system});
 
-    lightdm-kde-greeter = { pkgs, ...}: pkgs.stdenv.mkDerivation {
+    lightdm-kde-greeter = { pkgs, ...}: pkgs.stdenv.mkDerivation(finalAttrs: {
         pname = "lightdm-kde-greeter";
         name = "lightdm-kde-greeter";
         version = "0.1";
 
         src = pkgs.fetchurl {
-        url = "https://invent.kde.org/golubevan/lightdm-kde-greeter/-/archive/ups-port-kde6/lightdm-kde-greeter-ups-port-kde6.tar.gz";
-        hash = "sha256-AHmyCYRxwK6K3eYjJxuHIL+uOK4EiWTIf30K9Lo3f5s=";
+        url = "https://invent.kde.org/golubevan/lightdm-kde-greeter/-/archive/mr-small-fixes/lightdm-kde-greeter-mr-small-fixes.tar.gz";
+        hash = "sha256-+2MC6kNFnDI42dFEauDgoD8ptc0PSGZ4jLMbSv+7jeA=";
         };
-        nativeBuildInputs = with pkgs; [ cmake kdePackages.extra-cmake-modules kdePackages.qtbase qt6.full kdePackages.wrapQtAppsHook pkg-config lightdm gtk2 kdePackages.networkmanager-qt kdePackages.kiconthemes kdePackages.kcmutils kdePackages.kpackage kdePackages.plasma-workspace kdePackages.qtshadertools];
-        dontWrapQtApps = true;
+        buildInputs = with pkgs; [ kdePackages.qtbase kdePackages.qtshadertools qt6.full kdePackages.plasma-workspace kdePackages.qtshadertools kdePackages.kcmutils kdePackages.kcmutils lightdm gtk2 kdePackages.kauth kdePackages.kconfig kdePackages.kconfigwidgets kdePackages.kcoreaddons kdePackages.kdeclarative kdePackages.ki18n kdePackages.kiconthemes kdePackages.kpackage kdePackages.kservice kdePackages.networkmanager-qt kdePackages.libplasma kdePackages.qtsvg kdePackages.ksvg kdePackages.kirigami kdePackages.qtvirtualkeyboard];
+        nativeBuildInputs = with pkgs; [ cmake kdePackages.extra-cmake-modules qt6.wrapQtAppsHook pkg-config ];
         dontUseCmakeConfigure=true;
         buildPhase = ''
-        cmake -DGREETER_IMAGES_DIR=images -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=$out -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DECM_ENABLE_SANITIZERS='address' -DGREETER_DEFAULT_WALLPAPER=default.jpg -DBUILD_WITH_QT6=ON -DQT_MAJOR_VERSION=6 -DLIGHTDM_CONFIG_DIR=$out -DDATA_INSTALL_DIR=$out .
+        cmake -DGREETER_IMAGES_DIR=$out/images -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=$out -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DBUILD_WITH_QT6=ON -DQT_MAJOR_VERSION=6 -DLIGHTDM_CONFIG_DIR=$out -DGREETER_DEFAULT_WALLPAPER=/mnt/potd/wallpaper.jpg -DDATA_INSTALL_DIR=$out/share .
         '';
         postInstall = ''
         substituteInPlace "$out/share/xgreeters/lightdm-kde-greeter.desktop" \
         --replace "Exec=lightdm-kde-greeter" "Exec=$out/bin/lightdm-kde-greeter"
         '';
+
+        postFixup = ''
+        patchelf \
+        --add-needed ${pkgs.libGL}/lib/libGL.so.1 \
+        $out/bin/lightdm-kde-greeter
+
+        patchelf \
+        --add-needed ${pkgs.libGL}/lib/libGL.so.1 \
+        $out/bin/lightdm-kde-greeter-rootimage
+
+        substituteInPlace "$out/share/systemd/user/lightdm-kde-greeter-wifikeeper.service" \
+        --replace "ExecStart=/lightdm-kde-greeter-wifikeeper" "ExecStart=$out/bin/lightdm-kde-greeter-wifikeeper"
+
+        substituteInPlace "$out/share/dbus-1/system-services/org.kde.kcontrol.kcmlightdm.service" \
+        --replace "Exec=lib64/libexec/kcmlightdmhelper" "Exec=$out/lib64/libexec/kcmlightdmhelper"
+
+        mkdir $out/lib/qt-6
+        mv $out/lib/plugins $out/lib/qt-6/
+        '';
+
         passthru.xgreeters = pkgs.linkFarm "lightdm-kde-greeter-xgreeters" [{
-        path = "${placeholder "out"}/share/xgreeters/lightdm-kde-greeter.desktop";
-        name = "lightdm-kde-greeter.desktop";
+          path = "${finalAttrs.finalPackage}/share/xgreeters/lightdm-kde-greeter.desktop";
+          name = "lightdm-kde-greeter.desktop";
         }];
-    };
+    });
 
     in
     {
