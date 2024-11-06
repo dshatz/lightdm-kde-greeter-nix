@@ -3,7 +3,7 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    lightdm-kde-greeter.url = "git+file:.?dir=greeter";
+    lightdm-kde-greeter.url = "github:dshatz/lightdm-kde-greeter-nix?dir=greeter";
   };
 
   outputs = { self, nixpkgs, lightdm-kde-greeter }@inputs:
