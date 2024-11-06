@@ -116,9 +116,6 @@ Background=${ldmcfg.background}
             };
 
             environment.etc."lightdm/lightdm-kde-greeter.conf".source = kdeGreeterConf;
-            environment.sessionVariables = {
-              QT_PLUGIN_PATH="$QT_PLUGIN_PATH:${lightdm-kde-greeter.packages.x86_64-linux.default}/lib/plugins/plasma/kcms/systemsettings";
-            };
 
           };
         };
