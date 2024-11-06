@@ -35,11 +35,12 @@
         name = "lightdm-kde-greeter";
         version = "0.1";
 
-        src = pkgs.fetchurl {
-        url = "https://invent.kde.org/golubevan/lightdm-kde-greeter/-/archive/mr-small-fixes/lightdm-kde-greeter-mr-small-fixes.tar.gz";
-        hash = "sha256-+2MC6kNFnDI42dFEauDgoD8ptc0PSGZ4jLMbSv+7jeA=";
+        src = pkgs.fetchgit {
+          url = "https://invent.kde.org/plasma/lightdm-kde-greeter.git";
+          rev = "v6.0.1";
+          hash = "sha256-Q63sL840FbUpcMkTwjShd3z6E9DYOl4tayzJKsAYMVE=";
         };
-        buildInputs = with pkgs; [ kdePackages.qtbase kdePackages.qtshadertools qt6.full kdePackages.plasma-workspace kdePackages.qtshadertools kdePackages.kcmutils kdePackages.kcmutils lightdm gtk2 kdePackages.kauth kdePackages.kconfig kdePackages.kconfigwidgets kdePackages.kcoreaddons kdePackages.kdeclarative kdePackages.ki18n kdePackages.kiconthemes kdePackages.kpackage kdePackages.kservice kdePackages.networkmanager-qt kdePackages.libplasma kdePackages.qtsvg kdePackages.ksvg kdePackages.kirigami kdePackages.qtvirtualkeyboard];
+        buildInputs = with pkgs; [ kdePackages.qtbase kdePackages.qtshadertools qt6.full kdePackages.plasma-workspace kdePackages.qtshadertools         kdePackages.kcmutils kdePackages.kcmutils lightdm gtk2 kdePackages.kauth kdePackages.kconfig kdePackages.kconfigwidgets kdePackages.kcoreaddons kdePackages.kdeclarative kdePackages.ki18n kdePackages.kiconthemes kdePackages.kpackage kdePackages.kservice kdePackages.networkmanager-qt kdePackages.libplasma kdePackages.qtsvg kdePackages.ksvg kdePackages.kirigami kdePackages.qtvirtualkeyboard];
         nativeBuildInputs = with pkgs; [ cmake kdePackages.extra-cmake-modules qt6.wrapQtAppsHook pkg-config ];
         dontUseCmakeConfigure=true;
         buildPhase = ''

@@ -3,7 +3,7 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    lightdm-kde-greeter.url = "path:./greeter";
+    lightdm-kde-greeter.url = "git+file:.?dir=greeter";
   };
 
   outputs = { self, nixpkgs, lightdm-kde-greeter }@inputs:
@@ -29,39 +29,37 @@
           ldmcfg = dmcfg.lightdm;
           cfg = ldmcfg.greeters.kde;
 
-kdeGreeterConf = pkgs.writeText "lightdm-kde-greeter.conf" ''
-# SPDX-FileCopyrightText: None
-# SPDX-License-Identifier: CC0-1.0
-#
-# LightDM KDE Configuration
-# Available configuration options listed below.
-#
-# General greeter settings:
-#  theme-name = greeter theme to use
-#  enable-high-dpi = false|true ("false" by default)  Enable high DPI scaling and pixmaps. (Qt::AA_EnableHighDpiScaling and Qt::AA_UseHighDpiPixmaps are enabled)
-#  hide-network-widget = false|true ("false" by default) The theme should not show the network setting, even if there is one
-#
-# Theme "userbar" settings:
-#  Background = Background file to use, should be readable by all users
-#  BackgroundFillMode = number, [0-6], The following modes are supported:
-#    0: Stretch
-#    1: PreserveAspectFit
-#    2: PreserveAspectCrop
-#    3: Tile
-#    4: TileVertically
-#    5: TileHorizontally
-#    6: Pad (the image is not transformed)
+          kdeGreeterConf = pkgs.writeText "lightdm-kde-greeter.conf" ''
+          # SPDX-FileCopyrightText: None
+          # SPDX-License-Identifier: CC0-1.0
+          #
+          # LightDM KDE Configuration
+          # Available configuration options listed below.
+          #
+          # General greeter settings:
+          #  theme-name = greeter theme to use
+          #  enable-high-dpi = false|true ("false" by default)  Enable high DPI scaling and pixmaps. (Qt::AA_EnableHighDpiScaling and Qt::AA_UseHighDpiPixmaps are enabled)
+          #  hide-network-widget = false|true ("false" by default) The theme should not show the network setting, even if there is one
+          #
+          # Theme "userbar" settings:
+          #  Background = Background file to use, should be readable by all users
+          #  BackgroundFillMode = number, [0-6], The following modes are supported:
+          #    0: Stretch
+          #    1: PreserveAspectFit
+          #    2: PreserveAspectCrop
+          #    3: Tile
+          #    4: TileVertically
+          #    5: TileHorizontally
+          #    6: Pad (the image is not transformed)
 
-[greeter]
-enable-high-dpi=${nixpkgs.lib.boolToString cfg.enable-high-dpi}
-theme-name=userbar
-#hide-network-widget=false
+          [greeter]
+          enable-high-dpi=${nixpkgs.lib.boolToString cfg.enable-high-dpi}
+          theme-name=userbar
+          #hide-network-widget=false
 
-[lightdm_theme_userbar]
-Background=${ldmcfg.background}
-#BackgroundFillMode=
-
-            '';
+          [lightdm_theme_userbar]
+          Background=${ldmcfg.background}
+          #BackgroundFillMode='';
         in
         {
 
